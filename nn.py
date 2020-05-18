@@ -79,8 +79,13 @@ class l_layer_network:
 
     def predict(self,test_X,test_Y):
         self.X = test_X
+        self.initialize_cache()
         predictions = self.forward_propagate()
-        return predictions >= 0.5
+        predictions = (predictions >= 0.5)
+        assert predictions.shape == test_Y.shape
+        accuracy = np.equal(predictions,test_Y)
+        accuracy_pct = np.sum(accuracy)*100/predictions.shape[1]
+        return accuracy_pct, predictions
 
 
 def load_dataset():
@@ -107,8 +112,8 @@ train_X = train_set_x_orig.reshape(train_set_x_orig.shape[0],-1).T/255
 test_X = test_set_x_orig.reshape(test_set_x_orig.shape[0],-1).T/255
 
 
-net = l_layer_network([20,7,5,1],train_X,train_set_y,0.0075,2500)
+net = l_layer_network([20,7,5,1],train_X,train_set_y,0.75,2000)
 
 net.train_model()
-predictions = net.predict(test_X,test_set_y)
-print(predictions)
+pct,predictions = net.predict(train_X,train_set_y)
+print(predictions,'the percent accuracy is : {}'.format(pct))
